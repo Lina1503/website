@@ -159,7 +159,7 @@ function head({ depth, title, desc, canonical, keywords, ld = [], image = "asset
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+Display:ital,wght@0,200;0,300;0,400;1,200;1,300&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="${r("styles.css")}" />
-  <script>(function(){try{var d=document.documentElement;if(sessionStorage.getItem("ysp-intro")==="1")return;if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.className+=" intro";sessionStorage.setItem("ysp-intro","1");}catch(e){}})();</script>
+  <script>(function(){var d=document.documentElement,seen=false;try{seen=sessionStorage.getItem("ysp-intro")==="1"}catch(e){}if(seen)return;d.className+=" intro";try{sessionStorage.setItem("ysp-intro","1")}catch(e){}})();</script>
   ${ldTags ? "\n  " + ldTags : ""}
 </head>
 <body>

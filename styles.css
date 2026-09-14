@@ -1255,6 +1255,9 @@ a.contact-value:hover { color: var(--clay-deep); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
+  /* η οθόνη εισόδου εμφανίζεται κανονικά — απλώς ακίνητη */
+  .intro-inner { opacity: 1; transform: none; animation: none; }
+  .intro-rule i { width: 100%; animation: none; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
