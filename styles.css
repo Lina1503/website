@@ -1271,6 +1271,9 @@ a.contact-value:hover { color: var(--clay-deep); }
   }
   .hero-media { min-height: 58vh; order: -1; }
   .split-media, .about-media { width: 100%; min-height: 300px; aspect-ratio: 4 / 3; }
+  /* πορτρέτο: πιο ψηλό κάδρο στο κινητό, ώστε να μην κόβεται το πρόσωπο */
+  .about-media { aspect-ratio: 4 / 5; }
+  .about-media img { object-position: center 30%; }
   .split--flip .split-media,
   .about--flip .about-media { order: -1; }
   .split--flip .split-copy,
