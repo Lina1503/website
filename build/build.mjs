@@ -113,16 +113,6 @@ const breadcrumbLD = (depth, trail) => ({
   })),
 });
 
-const faqLD = (faq) => ({
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faq.map(([q, a]) => ({
-    "@type": "Question",
-    name: q,
-    acceptedAnswer: { "@type": "Answer", text: a },
-  })),
-});
-
 // ---- <head> ---------------------------------------------------------
 function head({ depth, title, desc, canonical, keywords, ld = [], image = "assets/space-1.jpg", type = "website" }) {
   const r = (p) => rel(depth, p);
@@ -188,16 +178,16 @@ function header(depth, active = "") {
       <button class="nav-toggle" aria-label="Άνοιγμα μενού" aria-expanded="false"><span></span><span></span><span></span></button>
       <ul class="nav-links">
         <li><a href="${r("index.html")}"${on("home")}>Αρχική</a></li>
-        <li><a href="${r("i-psychologos.html")}"${on("about")}>Η Ψυχολόγος</a></li>
+        <li><a href="${r("i-psychologos.html")}"${on("about")}>Λίγα λόγια για μένα</a></li>
         <li class="has-sub">
-          <a href="${r("ypiresies/index.html")}"${on("services")}>Υπηρεσίες</a>
-          <ul class="sub">
+          <button type="button" class="sub-toggle${active === "services" ? " is-active" : ""}" aria-expanded="false" aria-controls="sub-ypiresies">Υπηρεσίες</button>
+          <ul class="sub" id="sub-ypiresies">
             ${svcLinks}
           </ul>
         </li>
-        <li><a href="${r("blog/index.html")}"${on("blog")}>Blog</a></li>
+        <li><a href="${r("o-choros.html")}"${on("space")}>Ο Χώρος</a></li>
         <li><a href="${r("epikoinonia.html")}"${on("contact")}>Επικοινωνία</a></li>
-        <li><a href="${r("epikoinonia.html")}#rantevou" class="btn btn-nav">Ραντεβού</a></li>
+        <li class="nav-cta"><a href="${r("epikoinonia.html")}" class="btn btn-primary btn-nav">Κλείσε ραντεβού</a></li>
       </ul>
     </nav>
   </header>`;
@@ -214,26 +204,6 @@ function crumbs(depth, trail) {
     )
     .join(" ");
   return `<nav class="crumbs container" aria-label="Breadcrumb">${items}</nav>`;
-}
-
-// ---- CTA band -------------------------------------------------------
-function ctaBand(depth) {
-  const r = (p) => rel(depth, p);
-  return `
-  <section class="cta-band">
-    <div class="container cta-inner">
-      <div>
-        <p class="eyebrow">Κλείστε ραντεβού</p>
-        <h2 class="cta-title">Το πρώτο βήμα είναι πάντα το πιο δύσκολο.</h2>
-        <p class="cta-sub">Οι συνεδρίες πραγματοποιούνται κατόπιν ραντεβού, Δευτέρα έως Παρασκευή. Επικοινωνήστε μαζί μου για να βρούμε μαζί μια ώρα που σας εξυπηρετεί.</p>
-      </div>
-      <div class="cta-actions">
-        <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary">Καλέστε ${esc(BIZ.phoneDisplay)}</a>
-        <a href="mailto:${BIZ.email}" class="btn btn-ghost">Στείλτε Email</a>
-        <a href="${r("epikoinonia.html")}#rantevou" class="btn btn-ghost">Επικοινωνία &amp; Ραντεβού</a>
-      </div>
-    </div>
-  </section>`;
 }
 
 // ---- footer ---------------------------------------------------------
@@ -270,9 +240,9 @@ function footer(depth) {
         <h3>Εξερεύνηση</h3>
         <nav aria-label="Πλοήγηση" class="footer-links">
           <a href="${r("index.html")}">Αρχική</a>
-          <a href="${r("i-psychologos.html")}">Η Ψυχολόγος</a>
-          <a href="${r("ypiresies/index.html")}">Όλες οι Υπηρεσίες</a>
-          <a href="${r("blog/index.html")}">Blog</a>
+          <a href="${r("i-psychologos.html")}">Λίγα λόγια για μένα</a>
+          <a href="${r("o-choros.html")}">Ο Χώρος</a>
+          <a href="${r("blog/index.html")}">Άρθρα</a>
           <a href="${r("epikoinonia.html")}">Επικοινωνία</a>
         </nav>
       </div>
@@ -292,33 +262,49 @@ function footer(depth) {
       <p class="cb-credit">Made by <a href="https://clinicbrain.gr/?utm_source=client-site&amp;utm_medium=footer&amp;utm_campaign=made-by" target="_blank" rel="noopener noreferrer">CLINICBRAIN</a></p>
     </div>
 
-    <p class="footer-areas">
-      Εξυπηρετώ: ${AREAS.map((a) => `<a href="${r("perioches/" + a.slug + ".html")}">${esc(a.name)}</a>`).join(" <span aria-hidden=\"true\">·</span> ")}
-    </p>
   </footer>
   <script src="${r("main.js")}" defer></script>
 </body>
 </html>`;
 }
 
-// ---- gallery (κοινό block) ------------------------------------------
-function gallerySection(depth, { title = "Ο χώρος", lead = "" } = {}) {
+// ---- gallery (κοινό block) — κάθε φωτογραφία ανοίγει σε lightbox --------
+const SPACE_LEAD =
+  "Σε καλοσωρίζω στο δικό σου safe place! Έναν χώρο που δημιουργήθηκε με φροντίδα, ώστε να νιώθεις άνετα από την πρώτη στιγμή. Με εύκολη πρόσβαση, στο κέντρο της Θεσσαλονίκης, λίγα μέτρα από τον σταθμό Μετρό Βενιζέλου (Εγνατίας 54).";
+
+function galleryGrid(depth, items) {
   const r = (p) => rel(depth, p);
-  const items = GALLERY.map(
-    (g) => `
-          <figure class="gal-item reveal">
+  return items
+    .map(
+      (g) => `
+          <a class="gal-item reveal" href="${r("assets/" + g.file)}" data-lightbox aria-label="Μεγέθυνση φωτογραφίας: ${attr(g.alt)}">
             <img src="${r("assets/" + g.file)}" alt="${attr(g.alt)}" width="1600" height="1068" loading="lazy" />
-          </figure>`
-  ).join("");
+          </a>`
+    )
+    .join("");
+}
+
+// ---- «Πώς ξεκινάμε» — λωρίδα με τρία βήματα ---------------------------
+function startSteps(depth) {
+  const r = (p) => rel(depth, p);
+  const steps = [
+    ["Επικοινωνία", "Κάλεσέ με ή στείλε μου μήνυμα, για να κανονίσουμε το πρώτο ραντεβού."],
+    ["Πρώτη συνάντηση", "Θα γνωριστούμε, θα δούμε τι σε απασχολεί και πώς μπορούμε να συνεργαστούμε."],
+    ["Προχωράμε μαζί", "Αν νιώσεις ότι αυτός ο χώρος σου ταιριάζει, συνεχίζουμε με σεβασμό στον ρυθμό και τις ανάγκες σου."],
+  ];
   return `
-    <section class="gallery" id="o-choros">
+    <section class="booking" id="pos-xekiname">
       <div class="container">
-        <div class="section-head reveal">
-          <h2 class="section-title">${esc(title)}</h2>
-          ${lead ? `<p class="page-lead">${esc(lead)}</p>` : ""}
-        </div>
-        <div class="gal-grid">${items}
-        </div>
+        <h2 class="section-title reveal">Πώς ξεκινάμε</h2>
+        <ol class="steps">
+          ${steps
+            .map(
+              ([h, p], i) =>
+                `<li class="step reveal"><span class="step-n">${String(i + 1).padStart(2, "0")}</span><h3>${esc(h)}</h3><p>${esc(p)}</p></li>`
+            )
+            .join("\n          ")}
+        </ol>
+        <a href="${r("epikoinonia.html")}" class="btn btn-primary reveal">Κλείσε ραντεβού</a>
       </div>
     </section>`;
 }
@@ -333,37 +319,11 @@ function pageHome() {
     (s, i) => `
         <a class="svc reveal" href="${r("ypiresies/" + s.slug + ".html")}">
           <span class="svc-icon" aria-hidden="true">${svcIcon(i)}</span>
-          <span class="svc-num">${String(i + 1).padStart(2, "0")}</span>
           <h3>${esc(s.nav)}</h3>
           <p>${esc(s.lead)}</p>
           <span class="svc-more">Περισσότερα</span>
         </a>`
   ).join("");
-
-  const homeFaq = [
-    [
-      "Πώς κλείνω το πρώτο μου ραντεβού;",
-      "Τηλεφωνικά στο 697 236 0335 ή με email στο l.lefkou@yahoo.gr. Θα κανονίσουμε μαζί ημέρα και ώρα που σας εξυπηρετεί. Δεν υπάρχει online κράτηση — η πρώτη επικοινωνία γίνεται πάντα προσωπικά.",
-    ],
-    [
-      "Πόσο διαρκεί μια συνεδρία;",
-      "Η ατομική συνεδρία διαρκεί μία ώρα. Η συνεδρία ζευγαριού διαρκεί μιάμιση ώρα.",
-    ],
-    [
-      "Κάθε πότε γίνονται οι συνεδρίες;",
-      "Συνήθως μία φορά την εβδομάδα, σε σταθερή ημέρα και ώρα. Η συχνότητα προσαρμόζεται στις ανάγκες και στον ρυθμό σας και επανεξετάζεται μαζί, όσο προχωρά η διαδικασία.",
-    ],
-    [
-      "Τι ισχύει για την εμπιστευτικότητα;",
-      "Όσα συζητούνται στις συνεδρίες καλύπτονται πλήρως από το επαγγελματικό απόρρητο και τον κώδικα δεοντολογίας των ψυχολόγων.",
-    ],
-  ];
-  const faqItems = homeFaq
-    .map(
-      ([q, a]) =>
-        `<details class="faq-item reveal"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`
-    )
-    .join("\n          ");
 
   const ld = [
     { "@context": "https://schema.org", ...practiceLD },
@@ -375,29 +335,27 @@ function pageHome() {
       inLanguage: "el",
     },
     breadcrumbLD(depth, [{ name: "Αρχική", path: "index.html" }]),
-    faqLD(homeFaq),
   ];
 
   return head({
     depth,
     title: "Ψυχολόγος Θεσσαλονίκη | YOUR SAFE PLACE — Λίνα Λεύκου, MSc",
-    desc: "YOUR SAFE PLACE — Λίνα Λεύκου, MSc Ψυχολόγος & Ψυχοθεραπεύτρια στο κέντρο της Θεσσαλονίκης. Ατομική ψυχοθεραπεία, θεραπεία ζευγαριών, συμβουλευτική γονέων, υποστήριξη παιδιών & εφήβων. Κατόπιν ραντεβού.",
+    desc: "YOUR SAFE PLACE — Λίνα Λεύκου, MSc Ψυχολόγος & Ψυχοθεραπεύτρια στο κέντρο της Θεσσαλονίκης και online. Ατομική ψυχοθεραπεία, θεραπεία ζευγαριών, συμβουλευτική γονέων, υποστήριξη παιδιών & εφήβων.",
     canonical: "index.html",
     keywords: "ψυχολόγος Θεσσαλονίκη, ψυχοθεραπεύτρια Θεσσαλονίκη, ατομική ψυχοθεραπεία, θεραπεία ζευγαριών, συμβουλευτική γονέων, ψυχολόγος παιδιών εφήβων, Λίνα Λεύκου",
     ld,
   }) +
     header(depth, "home") +
     `
-  <main id="main">
+  <main id="main" class="home">
     <section class="hero" id="hero">
       <div class="hero-copy">
-        <h1 class="hero-title reveal">Ένας χώρος για να <em>σταθείς</em>.</h1>
-        <p class="hero-tagline reveal">Ψυχοθεραπεία για ενήλικες, ζευγάρια, γονείς &amp; εφήβους — στο κέντρο της Θεσσαλονίκης.</p>
+        <h1 class="hero-title reveal">Ένας χώρος για να <em>σταθείς</em>, να μιλήσεις, να καταλάβεις, να <em>συνδεθείς</em>.</h1>
+        <p class="hero-tagline reveal">Ψυχοθεραπεία και συμβουλευτική για εσένα και τις σχέσεις που έχουν σημασία.</p>
         <div class="hero-actions reveal">
-          <a href="${r("epikoinonia.html")}#rantevou" class="btn btn-primary">Κλείστε ραντεβού</a>
-          <a href="${r("ypiresies/index.html")}" class="btn btn-ghost">Οι υπηρεσίες</a>
+          <a href="${r("epikoinonia.html")}" class="btn btn-primary">Κλείσε ραντεβού</a>
         </div>
-        <p class="hero-meta reveal">${ICONS.pin}<span>${esc(BIZ.street)}, ${esc(BIZ.city)}</span></p>
+        <p class="hero-meta reveal">${ICONS.pin}<span>Θεσσαλονίκη · Online</span></p>
       </div>
       <div class="hero-media">
         <img src="${r("assets/space-2.jpg")}" alt="Ο χώρος ψυχοθεραπείας YOUR SAFE PLACE στη Θεσσαλονίκη — πολυθρόνα, φυτά και ζεστοί γήινοι τόνοι" width="1065" height="1600" fetchpriority="high" />
@@ -407,43 +365,33 @@ function pageHome() {
     <section class="statement">
       <div class="container statement-inner reveal">
         <span class="statement-rule" aria-hidden="true"></span>
-        <h2>Τα βγάζεις πέρα, κρατάς τα πάντα όρθια — κι όμως, <em>κάτι δεν πάει καλά</em>;</h2>
-        <p>Ίσως είναι ένα άγχος που δεν λέει να καταλαγιάσει. Μοτίβα που επαναλαμβάνονται, όσο κι αν προσπαθείς. Μια κούραση που δεν περνά με τον ύπνο. Αν κάτι από αυτά σού θυμίζει κάτι δικό σου, η ψυχοθεραπεία είναι ο χώρος να επιβραδύνεις και να δεις τι υπάρχει από κάτω.</p>
+        <h2>Κάθε άνθρωπος κουβαλά μια <em>ιστορία</em>.</h2>
+        <p>Μια ιστορία που διαμορφώνεται μέσα από τις σχέσεις και τις εμπειρίες του. Η ψυχοθεραπεία δεν έχει στόχο να τη «διορθώσει» — είναι μια ευκαιρία να τη δούμε μαζί με καινούργια μάτια.</p>
+        <p>Αν κάτι σε δυσκολεύει, μια σχέση σε απασχολεί ή βρίσκεσαι σε μια περίοδο αλλαγής, μπορούμε να αναζητήσουμε νέους τρόπους να φροντίζεις τον εαυτό σου και τις σχέσεις που έχουν σημασία για σένα.</p>
       </div>
     </section>
 
-    <section class="split" id="diadikasia">
+    <section class="split" id="prosengisi">
       <div class="split-media reveal">
         <img src="${r("assets/space-1.jpg")}" alt="Ο χώρος συνεδριών του YOUR SAFE PLACE — καναπές, πολυθρόνα και φυσικό φως" width="1600" height="1068" loading="lazy" />
       </div>
       <div class="split-copy">
-        <h2 class="section-title reveal">Η διαδικασία</h2>
-        <p class="reveal">Οι άνθρωποι που έρχονται εδώ έχουν συνήθως γεμάτες ζωές, σχέσεις που τους νοιάζουν και μεγάλη ικανότητα να φροντίζουν τους άλλους. Κι όμως, κάτω από την επιφάνεια, υπάρχει συχνά ένα βάρος που δύσκολα ονομάζεται.</p>
-        <p class="reveal">Πιστεύω ότι όταν επιβραδύνουμε και στρέφουμε την προσοχή μας σε όσα ζούμε — μέσα μας και γύρω μας — αρχίζουν να δημιουργούνται οι συνθήκες για να αλλάξει κάτι.</p>
-        <p class="reveal">Σιγά σιγά αρχίζεις να αναγνωρίζεις τι διαμορφώνει τον εσωτερικό σου κόσμο: μοτίβα, συναισθήματα, πεποιθήσεις. Και υπάρχει πια χώρος να τα νιώσεις και να καταλάβεις την ιστορία που κρύβεται πίσω τους.</p>
-      </div>
-    </section>
-
-    <section class="split split--flip" id="prosengisi">
-      <div class="split-media reveal">
-        <img src="${r("assets/space-7.jpg")}" alt="Λεπτομέρεια από τον χώρο του γραφείου ψυχοθεραπείας στη Θεσσαλονίκη" width="1600" height="1068" loading="lazy" />
-      </div>
-      <div class="split-copy">
         <h2 class="section-title reveal">Η <em>προσέγγισή</em> μου</h2>
-        <p class="reveal">Η δουλειά μας είναι συνεργατική. Στηρίζεται στη <strong>Συστημική Θεραπεία</strong> και στην <strong>Αφηγηματική Ψυχοθεραπεία</strong> — προσεγγίσεις που βλέπουν κάθε άνθρωπο μέσα στο πλαίσιο των σχέσεών του και της προσωπικής του ιστορίας.</p>
-        <p class="reveal">Αυτό μας επιτρέπει να δούμε πώς παλιά μοτίβα και τρόποι επιβίωσης εξακολουθούν να επηρεάζουν το σήμερα, χωρίς να χάνουμε την επαφή με όσα συμβαίνουν στην πραγματική σου ζωή.</p>
-        <p class="reveal">Ο στόχος δεν είναι να αναλύσουμε τα πάντα, αλλά να καταλάβουμε τι υπάρχει από κάτω — ώστε να έρθει μεγαλύτερη αυτογνωσία, πιο ήρεμη σχέση με τα συναισθήματα και σχέσεις που σε γεμίζουν.</p>
-        <p class="split-label reveal">Απευθύνομαι σε</p>
+        <p class="reveal">Η θεραπεία είναι, για μένα, μια συνεργατική διαδικασία.</p>
+        <p class="reveal">Εσύ φέρνεις την ιστορία σου, τις εμπειρίες και όσα σε απασχολούν, κι εγώ είμαι εκεί ως συνοδοιπόρος, για να τα εξερευνήσουμε μαζί.</p>
+        <p class="reveal">Με βάση τη συστημική και αφηγηματική προσέγγιση, βλέπουμε τον άνθρωπο μέσα στις σχέσεις και τις συνθήκες της ζωής του. Αναζητούμε νέες οπτικές, ακούμε όσα ίσως έχουν μείνει στο περιθώριο και δίνουμε χώρο σε δυνατότητες που μπορούν να ανοίξουν έναν διαφορετικό δρόμο.</p>
+        <p class="reveal">Γιατί αυτό που μας δυσκολεύει δεν αφορά πάντα μόνο εμάς· συχνά αφορά και τον τρόπο που σχετιζόμαστε με τους σημαντικούς ανθρώπους στη ζωή μας.</p>
+        <p class="split-label reveal">Μπορούμε να δουλέψουμε μαζί αν</p>
         <ul class="split-list reveal">
-          <li>Ενήλικες που αναζητούν ατομική υποστήριξη</li>
-          <li>Ζευγάρια σε δύσκολη ή κρίσιμη καμπή</li>
-          <li>Γονείς που θέλουν να στηρίξουν διαφορετικά το παιδί τους</li>
-          <li>Παιδιά και εφήβους</li>
+          <li>Θέλεις να κατανοήσεις καλύτερα τον εαυτό σου</li>
+          <li>Αναζητάτε ως ζευγάρι νέους τρόπους επικοινωνίας και σύνδεσης</li>
+          <li>Σε απασχολούν θέματα γονεϊκότητας</li>
+          <li>Το παιδί σου χρειάζεται υποστήριξη σε μια δύσκολη περίοδο</li>
         </ul>
       </div>
     </section>
 
-    <section class="about" id="about">
+    <section class="about about--flip" id="about">
       <div class="about-media reveal">
         <img src="${r("assets/lina-lefkou.jpg")}" alt="Λίνα Λεύκου, MSc Ψυχολόγος – Ψυχοθεραπεύτρια, YOUR SAFE PLACE Θεσσαλονίκη" width="1065" height="1600" loading="lazy" />
       </div>
@@ -451,15 +399,15 @@ function pageHome() {
         <h2 class="section-title reveal">Λίνα Λεύκου</h2>
         <p class="about-role reveal">MSc Ψυχολόγος – Ψυχοθεραπεύτρια</p>
         <p class="reveal">Είμαι η Λίνα Λεύκου, Ψυχολόγος και Ψυχοθεραπεύτρια, με μεταπτυχιακές σπουδές στη Σχολική και Εξελικτική Ψυχολογία.</p>
-        <p class="reveal">Στη θεραπευτική διαδικασία επιδιώκω να δημιουργώ έναν ασφαλή και ουσιαστικό χώρο, όπου μπορείς να κατανοήσεις όσα σε δυσκολεύουν, να αναγνωρίσεις τις δυνατότητές σου και να αναζητήσεις νέους τρόπους σύνδεσης με τον εαυτό σου και τους άλλους.</p>
+        <p class="reveal">Στη θεραπευτική διαδικασία επιδιώκω να δημιουργώ μια σχέση εμπιστοσύνης και συνεργασίας, όπου μπορείς να κατανοήσεις όσα σε δυσκολεύουν, να αναγνωρίσεις τις δυνατότητές σου και να αναζητήσεις νέους τρόπους σύνδεσης με τον εαυτό σου και τους άλλους.</p>
         <p class="split-label reveal">Εκπαίδευση &amp; σπουδές</p>
         <ul class="split-list reveal">
-          <li>MSc Σχολική &amp; Εξελικτική Ψυχολογία</li>
+          <li>Πτυχίο και άδεια ασκήσεως επαγγέλματος Ψυχολόγου</li>
+          <li>MSc στη Σχολική &amp; Εξελικτική Ψυχολογία</li>
           <li>Εκπαίδευση στη Συστημική Θεραπεία Ζευγαριών</li>
           <li>Εκπαίδευση στην Αφηγηματική Ψυχοθεραπεία</li>
-          <li>Τήρηση του κώδικα δεοντολογίας των ψυχολόγων</li>
         </ul>
-        <a href="${r("i-psychologos.html")}" class="btn btn-ghost reveal">Το πλήρες βιογραφικό</a>
+        <a href="${r("i-psychologos.html")}" class="btn btn-ghost reveal">Περισσότερα</a>
       </div>
     </section>
 
@@ -467,54 +415,64 @@ function pageHome() {
       <div class="container">
         <div class="section-head reveal">
           <h2 class="section-title">Υπηρεσίες</h2>
-          <p class="page-lead">Υποστήριξη για κάθε στιγμή της διαδρομής — ατομικά, ως ζευγάρι ή ως οικογένεια.</p>
         </div>
         <div class="services-grid">${svcCards}
         </div>
       </div>
     </section>
-` +
-    gallerySection(depth, {
-      title: "Ο χώρος",
-      lead: "Το γραφείο βρίσκεται στο κέντρο της Θεσσαλονίκης, στην Εγνατίας 54 — ένας χώρος φυσικού φωτός και ησυχίας, σχεδιασμένος ώστε να νιώθεις άνετα από το πρώτο λεπτό.",
-    }) +
-    `
-    <section class="booking" id="pos-xekiname">
+
+    <section class="gallery" id="o-choros">
       <div class="container">
-        <h2 class="section-title reveal">Πώς ξεκινάμε —</h2>
-        <div class="booking-grid">
-          <div class="booking-media reveal">
-            <img src="${r("assets/space-4.jpg")}" alt="Το γραφείο του YOUR SAFE PLACE με θέα στο κέντρο της Θεσσαλονίκης" width="1600" height="1068" loading="lazy" />
-          </div>
-          <div class="booking-steps">
-            <div class="step reveal">
-              <span class="step-n">01. Επικοινωνία</span>
-              <p>Μια σύντομη τηλεφωνική επικοινωνία ή ένα email, για να μου πείτε τι σας φέρνει εδώ. Απαντώ το συντομότερο δυνατό.</p>
-            </div>
-            <div class="step reveal">
-              <span class="step-n">02. Κανονίζουμε την πρώτη συνάντηση</span>
-              <p>Βρίσκουμε μαζί ημέρα και ώρα, Δευτέρα έως Παρασκευή, και λύνουμε τυχόν πρακτικές απορίες πριν έρθετε.</p>
-            </div>
-            <div class="step reveal">
-              <span class="step-n">03. Ξεκινάμε</span>
-              <p>Στην πρώτη συνεδρία γνωριζόμαστε, χωρίς πίεση. Αν νιώσετε ότι ταιριάζουμε, σχεδιάζουμε μαζί τη συνέχεια.</p>
-            </div>
-            <a href="${r("epikoinonia.html")}#rantevou" class="btn btn-ghost reveal">Κλείστε ραντεβού</a>
-          </div>
+        <div class="section-head reveal">
+          <h2 class="section-title">Ο χώρος</h2>
+          <p class="page-lead">${esc(SPACE_LEAD)}</p>
         </div>
+        <div class="gal-grid">${galleryGrid(depth, GALLERY.slice(0, 6))}
+        </div>
+        <a href="${r("o-choros.html")}" class="btn btn-ghost gallery-more reveal">Περισσότερα</a>
       </div>
     </section>
+` +
+    startSteps(depth) +
+    `
+  </main>` +
+    footer(depth);
+}
 
-    <section class="faq-section" id="erotiseis">
+// ====================================================================
+//  PAGE: Ο ΧΩΡΟΣ
+// ====================================================================
+function pageSpace() {
+  const depth = 0;
+  const trail = [
+    { name: "Αρχική", rel: "index.html", path: "index.html" },
+    { name: "Ο Χώρος", rel: "o-choros.html", path: "o-choros.html" },
+  ];
+  return head({
+    depth,
+    title: "Ο Χώρος — Γραφείο Ψυχοθεραπείας στο Κέντρο Θεσσαλονίκης | YOUR SAFE PLACE",
+    desc: "Το YOUR SAFE PLACE στην Εγνατίας 54, λίγα μέτρα από τον σταθμό Μετρό Βενιζέλου. Ένας φωτεινός, ήσυχος χώρος ψυχοθεραπείας στο κέντρο της Θεσσαλονίκης.",
+    canonical: "o-choros.html",
+    keywords: "γραφείο ψυχολόγου Θεσσαλονίκη, χώρος ψυχοθεραπείας, Εγνατίας 54, Μετρό Βενιζέλου",
+    ld: [breadcrumbLD(depth, trail)],
+  }) +
+    header(depth, "space") +
+    crumbs(depth, trail) +
+    `
+  <main id="main">
+    <section class="page-hero">
       <div class="container">
-        <h2 class="section-title reveal">Συχνές ερωτήσεις</h2>
-        <div class="faq">
-          ${faqItems}
+        <h1 class="page-title reveal">Ο χώρος</h1>
+        <p class="page-lead reveal">${esc(SPACE_LEAD)}</p>
+      </div>
+    </section>
+    <section class="gallery gallery--page">
+      <div class="container">
+        <div class="gal-grid">${galleryGrid(depth, GALLERY)}
         </div>
       </div>
     </section>
   </main>` +
-    ctaBand(depth) +
     footer(depth);
 }
 
@@ -526,7 +484,7 @@ function pageAbout() {
   const r = (p) => rel(depth, p);
   const trail = [
     { name: "Αρχική", rel: "index.html", path: "index.html" },
-    { name: "Η Ψυχολόγος", rel: "i-psychologos.html", path: "i-psychologos.html" },
+    { name: "Λίγα λόγια για μένα", rel: "i-psychologos.html", path: "i-psychologos.html" },
   ];
   const ld = [
     breadcrumbLD(depth, trail),
@@ -568,13 +526,16 @@ function pageAbout() {
           <img src="${r("assets/lina-lefkou.jpg")}" alt="Λίνα Λεύκου, MSc Ψυχολόγος – Ψυχοθεραπεύτρια" width="1065" height="1600" />
         </div>
         <div class="about-copy">
-          <p class="eyebrow reveal">Η Ψυχολόγος</p>
+          <p class="eyebrow reveal">Λίγα λόγια για μένα</p>
           <h1 class="section-title reveal">Λίνα Λεύκου</h1>
           <p class="about-role reveal">MSc Ψυχολόγος – Ψυχοθεραπεύτρια</p>
-          <p class="reveal">Είμαι η Λίνα Λεύκου, Ψυχολόγος και Ψυχοθεραπεύτρια, με μεταπτυχιακές σπουδές στη Σχολική και Εξελικτική Ψυχολογία.</p>
-          <p class="reveal">Έχω εκπαιδευτεί στη Συστημική Θεραπεία Ζευγαριών και στην Αφηγηματική Ψυχοθεραπεία, προσεγγίσεις που με βοηθούν να βλέπω κάθε άνθρωπο μέσα στο πλαίσιο των σχέσεών του και της προσωπικής του ιστορίας.</p>
-          <p class="reveal">Στη θεραπευτική διαδικασία επιδιώκω να δημιουργώ έναν ασφαλή και ουσιαστικό χώρο, όπου μπορείς να κατανοήσεις όσα σε δυσκολεύουν, να αναγνωρίσεις τις δυνατότητές σου και να αναζητήσεις νέους τρόπους σύνδεσης με τον εαυτό σου και τους άλλους.</p>
-          <p class="reveal">Στο <strong>YOUR SAFE PLACE</strong> υποδέχομαι ενήλικες, ζευγάρια, γονείς, παιδιά και εφήβους. Κάθε συνεργασία ξεκινά από την ίδια αρχή: τον σεβασμό στον ρυθμό σου και την εμπιστευτικότητα όσων μοιράζεσαι.</p>
+          <p class="reveal">Είμαι η Λίνα Λεύκου, Ψυχολόγος και Ψυχοθεραπεύτρια.</p>
+          <p class="reveal">Το ταξίδι μου ξεκίνησε στο Τμήμα Ψυχολογίας του Αριστοτελείου Πανεπιστημίου Θεσσαλονίκης. Το ενδιαφέρον μου για την ανάπτυξη και την ψυχική υγεία των παιδιών με οδήγησε στις μεταπτυχιακές μου σπουδές στη Σχολική και Εξελικτική Ψυχολογία (ΑΠΘ).</p>
+          <p class="reveal">Μέσα από την επαφή μου με παιδιά και γονείς, άρχισα να εστιάζω περισσότερο στη σχέση του ζευγαριού και στη βαθιά σύνδεσή της με τη συνολική ευημερία της οικογένειας. Έτσι, επέλεξα να εμβαθύνω στη Συστημική Θεραπεία Ζευγαριών, στο Ινστιτούτο Συστημικής Θεραπείας Θεσσαλονίκης. Στη συνέχεια, ολοκλήρωσα την εκπαίδευσή μου στην Αφηγηματική Ψυχοθεραπεία, στο Ινστιτούτο Αφηγηματικής Ψυχοθεραπείας &amp; Κοινοτικής Πρακτικής.</p>
+          <p class="reveal">Η εκπαίδευσή μου στη Συστημική και την Αφηγηματική προσέγγιση διαμόρφωσε τον τρόπο με τον οποίο επιλέγω να βλέπω τον κάθε άνθρωπο: μέσα στην προσωπική του ιστορία, τις σχέσεις του και το πλαίσιο στο οποίο ζει.</p>
+          <p class="reveal">Στο <strong>YOUR SAFE PLACE</strong> συναντώ ενήλικες, ζευγάρια, γονείς, παιδιά και εφήβους. Στόχος μου είναι να δημιουργώ έναν χώρο ασφάλειας, εμπιστοσύνης και σεβασμού, όπου μπορούμε να μιλήσουμε ανοιχτά, να συναντηθούμε με ενσυναίσθηση, χωρίς κριτική, και να εξερευνήσουμε όσα σε απασχολούν, με τον δικό σου ρυθμό.</p>
+          <p class="reveal">Αν σκέφτεσαι να ξεκινήσεις, μπορούμε να γνωριστούμε!</p>
+          <a href="${r("epikoinonia.html")}" class="btn btn-primary reveal">Κλείσε ραντεβού</a>
         </div>
       </div>
     </section>
@@ -582,102 +543,14 @@ function pageAbout() {
     <section class="creds">
       <div class="container">
         <div class="creds-grid">
+          <div class="cred reveal"><span class="cred-k">Σπουδές</span><span class="cred-v">Πτυχίο Ψυχολογίας – Άδεια ασκήσεως επαγγέλματος</span></div>
           <div class="cred reveal"><span class="cred-k">MSc</span><span class="cred-v">Μεταπτυχιακές σπουδές στη Σχολική &amp; Εξελικτική Ψυχολογία</span></div>
           <div class="cred reveal"><span class="cred-k">Συστημική Προσέγγιση</span><span class="cred-v">Εκπαίδευση στη Συστημική Θεραπεία Ζευγαριών</span></div>
           <div class="cred reveal"><span class="cred-k">Αφηγηματική Ψυχοθεραπεία</span><span class="cred-v">Εκπαίδευση στην Αφηγηματική Προσέγγιση</span></div>
-          <div class="cred reveal"><span class="cred-k">Εμπιστευτικότητα</span><span class="cred-v">Πλήρης τήρηση του απορρήτου &amp; του κώδικα δεοντολογίας</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="approach">
-      <div class="container">
-        <div class="section-head reveal">
-          <p class="eyebrow">Η προσέγγιση</p>
-          <h2 class="section-title">Πώς δουλεύουμε μαζί</h2>
-        </div>
-        <ol class="steps">
-          <li class="step reveal"><span class="step-n">01</span><h3>Πρώτη επικοινωνία</h3><p>Μια σύντομη τηλεφωνική επικοινωνία ή email, για να κανονίσουμε την πρώτη συνάντηση και να απαντηθούν τυχόν πρακτικές απορίες.</p></li>
-          <li class="step reveal"><span class="step-n">02</span><h3>Πρώτη συνεδρία</h3><p>Γνωριζόμαστε. Μιλάμε για όσα σε φέρνουν εδώ, χωρίς πίεση και χωρίς να χρειάζεται να έχεις τα πάντα «τακτοποιημένα» πριν έρθεις.</p></li>
-          <li class="step reveal"><span class="step-n">03</span><h3>Κοινός στόχος</h3><p>Σχεδιάζουμε μαζί το πλαίσιο: τι θα θέλαμε να αλλάξει, με ποιον ρυθμό και με ποια συχνότητα συνεδριών.</p></li>
-          <li class="step reveal"><span class="step-n">04</span><h3>Θεραπευτική διαδικασία</h3><p>Συνήθως μία συνεδρία την εβδομάδα, διάρκειας μίας ώρας (1,5 ώρα για ζευγάρια), με συνεχή αναστοχασμό της πορείας μας.</p></li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="philosophy">
-      <div class="container philosophy-inner reveal">
-        <p class="eyebrow">Η Φιλοσοφία μου</p>
-        <span class="philosophy-mark" aria-hidden="true">&ldquo;</span>
-        <blockquote>Ένας χώρος για να <em>σταθείς</em>. Να μιλήσεις. Να καταλάβεις. Να <em>συνδεθείς</em>.</blockquote>
-        <cite class="philosophy-cite">Λίνα Λεύκου · MSc Ψυχολόγος – Ψυχοθεραπεύτρια</cite>
-      </div>
-    </section>
-  </main>` +
-    ctaBand(depth) +
-    footer(depth);
-}
-
-// ====================================================================
-//  PAGE: SERVICES HUB
-// ====================================================================
-function pageServicesHub() {
-  const depth = 1;
-  const r = (p) => rel(depth, p);
-  const trail = [
-    { name: "Αρχική", rel: "index.html", path: "index.html" },
-    { name: "Υπηρεσίες", rel: "ypiresies/index.html", path: "ypiresies/index.html" },
-  ];
-  const cards = SERVICES.map(
-    (s, i) => `
-        <a class="svc reveal" href="${r("ypiresies/" + s.slug + ".html")}">
-          <span class="svc-icon" aria-hidden="true">${svcIcon(i)}</span>
-          <span class="svc-num">${String(i + 1).padStart(2, "0")}</span>
-          <h2>${esc(s.nav)}</h2>
-          <p>${esc(s.lead)}</p>
-          <span class="svc-more">Περισσότερα</span>
-        </a>`
-  ).join("");
-  const ld = [
-    breadcrumbLD(depth, trail),
-    {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      itemListElement: SERVICES.map((s, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        name: s.h1,
-        url: abs("ypiresies/" + s.slug + ".html"),
-      })),
-    },
-  ];
-  return head({
-    depth,
-    title: "Υπηρεσίες Ψυχοθεραπείας & Συμβουλευτικής | YOUR SAFE PLACE Θεσσαλονίκη",
-    desc: "Ατομική ψυχοθεραπεία, θεραπεία ζευγαριών, συμβουλευτική γονέων και υποστήριξη παιδιών & εφήβων στο κέντρο της Θεσσαλονίκης, από τη Λίνα Λεύκου, MSc Ψυχολόγο.",
-    canonical: "ypiresies/index.html",
-    keywords: "ατομική ψυχοθεραπεία Θεσσαλονίκη, θεραπεία ζευγαριών Θεσσαλονίκη, συμβουλευτική γονέων, ψυχολόγος παιδιών εφήβων Θεσσαλονίκη",
-    ld,
-  }) +
-    header(depth, "services") +
-    crumbs(depth, trail) +
-    `
-  <main id="main">
-    <section class="page-hero">
-      <div class="container">
-        <p class="eyebrow reveal">Υπηρεσίες</p>
-        <h1 class="page-title reveal">Ψυχοθεραπεία &amp; συμβουλευτική, με ανθρώπινο ρυθμό</h1>
-        <p class="page-lead reveal">Είτε έρχεσαι μόνος σου, είτε ως ζευγάρι, είτε ως γονιός για το παιδί σου — η δουλειά ξεκινά πάντα από τη σχέση εμπιστοσύνης και προχωρά με τον δικό σου ρυθμό.</p>
-      </div>
-    </section>
-    <section class="services services--hub">
-      <div class="container">
-        <div class="services-grid">${cards}
         </div>
       </div>
     </section>
   </main>` +
-    ctaBand(depth) +
     footer(depth);
 }
 
@@ -689,7 +562,6 @@ function pageService(s, idx) {
   const r = (p) => rel(depth, p);
   const trail = [
     { name: "Αρχική", rel: "index.html", path: "index.html" },
-    { name: "Υπηρεσίες", rel: "ypiresies/index.html", path: "ypiresies/index.html" },
     { name: s.nav, rel: "ypiresies/" + s.slug + ".html", path: "ypiresies/" + s.slug + ".html" },
   ];
   const related = SERVICES.filter((x) => x.slug !== s.slug);
@@ -703,7 +575,6 @@ function pageService(s, idx) {
       url: abs("ypiresies/" + s.slug + ".html"),
       provider: { "@id": `${BASE}/#practice` },
     },
-    faqLD(s.faq),
   ];
   return head({
     depth,
@@ -721,10 +592,8 @@ function pageService(s, idx) {
     <section class="page-hero page-hero--svc">
       <div class="container">
         <span class="svc-hero-icon reveal" aria-hidden="true">${svcIcon(idx)}</span>
-        <p class="eyebrow reveal">Υπηρεσία ${String(idx + 1).padStart(2, "0")}</p>
         <h1 class="page-title reveal">${esc(s.h1)}</h1>
         <p class="page-lead reveal">${esc(s.lead)}</p>
-        <div class="hero-actions reveal"><a href="${r("epikoinonia.html")}#rantevou" class="btn btn-primary">Κλείστε Ραντεβού</a></div>
       </div>
     </section>
 
@@ -738,24 +607,17 @@ function pageService(s, idx) {
             ${s.includes.map((i) => `<li class="reveal">${esc(i)}</li>`).join("\n            ")}
           </ul>
 
-          <h2 class="reveal">Συχνές ερωτήσεις</h2>
-          <div class="faq">
-            ${s.faq
-              .map(
-                ([q, a]) => `<details class="faq-item reveal"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`
-              )
-              .join("\n            ")}
+          <div class="svc-closing reveal">
+            ${s.closing.map((p) => `<p>${esc(p)}</p>`).join("\n            ")}
           </div>
         </article>
 
         <aside class="svc-aside">
           <div class="aside-card reveal">
-            <h3>Κλείστε ραντεβού</h3>
-            <p>Οι συνεδρίες πραγματοποιούνται κατόπιν ραντεβού, Δευτέρα έως Παρασκευή. Επικοινωνήστε τηλεφωνικά ή με email.</p>
-            <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary btn-block">${esc(BIZ.phoneDisplay)}</a>
-            <a href="mailto:${BIZ.email}" class="btn btn-ghost btn-block">${esc(BIZ.email)}</a>
-            <p class="aside-meta">${esc(BIZ.street)}<br />${esc(BIZ.city)}, ${esc(BIZ.postal)}</p>
-            <p class="aside-meta">${esc(s.duration)}</p>
+            <h3>Κλείσε ραντεβού</h3>
+            <p>Οι συνεδρίες πραγματοποιούνται κατόπιν ραντεβού, Δευτέρα έως Παρασκευή, στο χώρο μου (${esc(BIZ.street)}, ${esc(BIZ.city)}) ή online.</p>
+            <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary btn-block btn-phone">${esc(BIZ.phoneDisplay)}</a>
+            <a href="mailto:${BIZ.email}" class="btn btn-ghost btn-block btn-email">${esc(BIZ.email)}</a>
           </div>
           <div class="aside-card reveal">
             <h3>Άλλες υπηρεσίες</h3>
@@ -767,7 +629,6 @@ function pageService(s, idx) {
       </div>
     </section>
   </main>` +
-    ctaBand(depth) +
     footer(depth);
 }
 
@@ -781,16 +642,9 @@ function pageArea(a) {
     { name: "Αρχική", rel: "index.html", path: "index.html" },
     { name: a.name, rel: "perioches/" + a.slug + ".html", path: "perioches/" + a.slug + ".html" },
   ];
-  const localFaq = [
-    [`Πού βρίσκεται το γραφείο;`, `Το YOUR SAFE PLACE βρίσκεται στην ${BIZ.street}, ${BIZ.city}, Τ.Κ. ${BIZ.postal} — στο κέντρο της πόλης, με εύκολη πρόσβαση από ${a.name}.`],
-    [`Πώς κλείνω ραντεβού;`, `Καλέστε στο ${BIZ.phoneDisplay} ή στείλτε email στο ${BIZ.email}. Οι συνεδρίες πραγματοποιούνται κατόπιν ραντεβού, Δευτέρα έως Παρασκευή.`],
-    [`Ποιες υπηρεσίες προσφέρετε;`, `Ατομική ψυχοθεραπεία, θεραπεία ζευγαριών, συμβουλευτική γονέων και υποστήριξη παιδιών & εφήβων.`],
-    [`Πόσο διαρκεί μια συνεδρία;`, `Η ατομική συνεδρία διαρκεί μία ώρα, ενώ η συνεδρία ζευγαριού μιάμιση ώρα.`],
-  ];
   const ld = [
     breadcrumbLD(depth, trail),
     { "@context": "https://schema.org", ...practiceLD, areaServed: a.name },
-    faqLD(localFaq),
   ];
   return head({
     depth,
@@ -810,7 +664,7 @@ function pageArea(a) {
         <h1 class="page-title reveal">${esc(a.h1)}</h1>
         <p class="page-lead reveal">${esc(a.blurb)}</p>
         <div class="hero-actions reveal">
-          <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary">Καλέστε ${esc(BIZ.phoneDisplay)}</a>
+          <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary">Κάλεσε στο ${esc(BIZ.phoneDisplay)}</a>
           <a href="${r("epikoinonia.html")}" class="btn btn-ghost">Επικοινωνία &amp; Χάρτης</a>
         </div>
       </div>
@@ -823,10 +677,6 @@ function pageArea(a) {
           <ul class="ticks two-col">
             ${SERVICES.map((s) => `<li class="reveal"><a href="${r("ypiresies/" + s.slug + ".html")}">${esc(s.h1)}</a></li>`).join("\n            ")}
           </ul>
-          <h2 class="reveal">Συχνές ερωτήσεις</h2>
-          <div class="faq">
-            ${localFaq.map(([q, ans]) => `<details class="faq-item reveal"><summary>${esc(q)}</summary><p>${esc(ans)}</p></details>`).join("\n            ")}
-          </div>
         </article>
         <aside class="svc-aside">
           <div class="aside-card reveal">
@@ -840,7 +690,6 @@ function pageArea(a) {
       </div>
     </section>
   </main>` +
-    ctaBand(depth) +
     footer(depth);
 }
 
@@ -852,7 +701,7 @@ function pageBlogHub() {
   const r = (p) => rel(depth, p);
   const trail = [
     { name: "Αρχική", rel: "index.html", path: "index.html" },
-    { name: "Blog", rel: "blog/index.html", path: "blog/index.html" },
+    { name: "Άρθρα", rel: "blog/index.html", path: "blog/index.html" },
   ];
   const posts = [...POSTS].sort((x, y) => (x.date < y.date ? 1 : -1));
   const cards = posts.map(
@@ -869,17 +718,17 @@ function pageBlogHub() {
     {
       "@context": "https://schema.org",
       "@type": "Blog",
-      name: BIZ.name + " — Blog",
+      name: BIZ.name + " — Άρθρα",
       url: abs("blog/index.html"),
       inLanguage: "el",
     },
   ];
   return head({
     depth,
-    title: "Blog — Ψυχολογία & Ψυχική Υγεία | YOUR SAFE PLACE",
+    title: "Άρθρα — Σκέψεις για την Ψυχική Υγεία | YOUR SAFE PLACE",
     desc: "Άρθρα για την ψυχοθεραπεία, τις σχέσεις, το άγχος, τη γονεϊκότητα και την εφηβεία, από τη Λίνα Λεύκου, MSc Ψυχολόγο – Ψυχοθεραπεύτρια.",
     canonical: "blog/index.html",
-    keywords: "blog ψυχολογίας, άρθρα ψυχοθεραπείας, άγχος, σχέσεις, γονεϊκότητα, εφηβεία",
+    keywords: "άρθρα ψυχολογίας, άρθρα ψυχοθεραπείας, άγχος, σχέσεις, γονεϊκότητα, εφηβεία",
     ld,
   }) +
     header(depth, "blog") +
@@ -888,9 +737,9 @@ function pageBlogHub() {
   <main id="main">
     <section class="page-hero">
       <div class="container">
-        <p class="eyebrow reveal">Blog</p>
+        <p class="eyebrow reveal">Άρθρα</p>
         <h1 class="page-title reveal">Σκέψεις για την ψυχική υγεία</h1>
-        <p class="page-lead reveal">Χρήσιμα κείμενα και απαντήσεις σε ερωτήματα που ακούγονται συχνά μέσα στο γραφείο.</p>
+        <p class="page-lead reveal">Χρήσιμα κείμενα και απαντήσεις σε ερωτήματα που συναντώ συχνά στο γραφείο.</p>
       </div>
     </section>
     <section class="posts">
@@ -900,7 +749,6 @@ function pageBlogHub() {
       </div>
     </section>
   </main>` +
-    ctaBand(depth) +
     footer(depth);
 }
 
@@ -912,7 +760,7 @@ function pagePost(p) {
   const r = (pp) => rel(depth, pp);
   const trail = [
     { name: "Αρχική", rel: "index.html", path: "index.html" },
-    { name: "Blog", rel: "blog/index.html", path: "blog/index.html" },
+    { name: "Άρθρα", rel: "blog/index.html", path: "blog/index.html" },
     { name: p.title, rel: "blog/" + p.slug + ".html", path: "blog/" + p.slug + ".html" },
   ];
   const relatedSvc = SERVICES.find((s) => s.slug === p.related);
@@ -932,7 +780,6 @@ function pagePost(p) {
       author: { "@type": "Person", name: BIZ.doctor },
       publisher: { "@id": `${BASE}/#practice` },
     },
-    faqLD(p.faq),
   ];
   // [τίτλος, κείμενο, λίστα?] — ο τρίτος όρος είναι προαιρετικά bullets
   const bodyHtml = p.body
@@ -970,20 +817,16 @@ function pagePost(p) {
         <div class="article-copy">
           ${bodyHtml}
 
-          <h2 class="reveal">Συχνές ερωτήσεις</h2>
-          <div class="faq">
-            ${p.faq.map(([q, a]) => `<details class="faq-item reveal"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("\n            ")}
-          </div>
-
           ${relatedSvc ? `<div class="article-cta reveal">
-            <p>Σχετική υπηρεσία: <a href="${r("ypiresies/" + relatedSvc.slug + ".html")}"><strong>${esc(relatedSvc.h1)}</strong></a>. Για ραντεβού καλέστε στο <a href="tel:${BIZ.phoneIntl}">${esc(BIZ.phoneDisplay)}</a>.</p>
+            <h2>Θέλεις να το εξερευνήσουμε περισσότερο;</h2>
+            <p>${esc(relatedSvc.inPhrase)} <a href="${r("ypiresies/" + relatedSvc.slug + ".html")}">${esc(relatedSvc.h1)}</a> μπορούμε να δουλέψουμε μαζί πάνω σε όσα σε απασχολούν, με ασφάλεια, σεβασμό και στον δικό σου ρυθμό.</p>
           </div>` : ""}
 
           <p class="article-disclaimer">Το παρόν άρθρο έχει ενημερωτικό χαρακτήρα και δεν υποκαθιστά την εξατομικευμένη ψυχολογική εκτίμηση ή θεραπεία. Αν κάτι σας δυσκολεύει, αναζητήστε υποστήριξη από εξειδικευμένο επαγγελματία ψυχικής υγείας.</p>
         </div>
         <aside class="article-aside">
           <div class="aside-card reveal">
-            <h3>Διαβάστε επίσης</h3>
+            <h3>Διάβασε επίσης</h3>
             <nav class="aside-links">
               ${others.map((o) => `<a href="${r("blog/" + o.slug + ".html")}">${esc(o.title)} →</a>`).join("\n              ")}
             </nav>
@@ -992,7 +835,6 @@ function pagePost(p) {
       </div>
     </article>
   </main>` +
-    ctaBand(depth) +
     footer(depth);
 }
 
@@ -1005,13 +847,7 @@ function pageContact() {
     { name: "Αρχική", rel: "index.html", path: "index.html" },
     { name: "Επικοινωνία", rel: "epikoinonia.html", path: "epikoinonia.html" },
   ];
-  const contactFaq = [
-    ["Πώς κλείνω το πρώτο μου ραντεβού;", `Τηλεφωνικά στο ${BIZ.phoneDisplay} ή με email στο ${BIZ.email}. Θα κανονίσουμε μαζί ημέρα και ώρα που σας εξυπηρετεί.`],
-    ["Πόσο διαρκεί η συνεδρία;", "Η ατομική συνεδρία διαρκεί μία ώρα. Η συνεδρία ζευγαριού διαρκεί μιάμιση ώρα."],
-    ["Υπάρχει online κράτηση;", "Όχι. Τα ραντεβού κλείνονται αποκλειστικά μέσω τηλεφώνου ή email, ώστε να υπάρχει μια πρώτη προσωπική επικοινωνία."],
-    ["Τι ισχύει για την εμπιστευτικότητα;", "Όσα συζητούνται στις συνεδρίες καλύπτονται πλήρως από το επαγγελματικό απόρρητο και τον κώδικα δεοντολογίας των ψυχολόγων."],
-  ];
-  const ld = [breadcrumbLD(depth, trail), { "@context": "https://schema.org", ...practiceLD }, faqLD(contactFaq)];
+  const ld = [breadcrumbLD(depth, trail), { "@context": "https://schema.org", ...practiceLD }];
   return head({
     depth,
     title: "Επικοινωνία & Ραντεβού | YOUR SAFE PLACE — Ψυχολόγος Θεσσαλονίκη",
@@ -1029,56 +865,21 @@ function pageContact() {
         <div class="contact-copy">
           <p class="eyebrow reveal">Επικοινωνία</p>
           <h1 class="section-title reveal">Ας κάνουμε το πρώτο βήμα</h1>
-          <p class="contact-note reveal">Οι συνεδρίες πραγματοποιούνται <strong>κατόπιν ραντεβού</strong>, Δευτέρα έως Παρασκευή. Επικοινωνήστε μαζί μου τηλεφωνικά ή με email — αν δεν απαντήσω άμεσα, θα επικοινωνήσω μαζί σας το συντομότερο δυνατό.</p>
+          <p class="contact-note reveal">Αν σκέφτεσαι να ξεκινήσεις, μπορείς να επικοινωνήσεις μαζί μου τηλεφωνικά ή με email, για να κανονίσουμε ένα πρώτο ραντεβού. Οι συνεδρίες πραγματοποιούνται Δευτέρα έως Παρασκευή. Αν δεν μπορέσω να απαντήσω άμεσα, θα επικοινωνήσω μαζί σου το συντομότερο δυνατό.</p>
           <ul class="contact-list">
-            <li class="reveal"><span class="contact-label">Ωράριο</span><span class="contact-value">Δευτέρα – Παρασκευή<br /><em>κατόπιν ραντεβού</em></span></li>
+            <li class="reveal"><span class="contact-label">Ωράριο</span><span class="contact-value">Δευτέρα – Παρασκευή<br />κατόπιν ραντεβού</span></li>
             <li class="reveal"><span class="contact-label">Διεύθυνση</span><span class="contact-value">${esc(BIZ.street)}<br />${esc(BIZ.city)}, Τ.Κ. ${esc(BIZ.postal)}</span></li>
             <li class="reveal"><span class="contact-label">Τηλέφωνο</span><span class="contact-value"><a href="tel:${BIZ.phoneIntl}">${esc(BIZ.phoneDisplay)}</a></span></li>
             <li class="reveal"><span class="contact-label">Email</span><span class="contact-value"><a href="mailto:${BIZ.email}">${esc(BIZ.email)}</a></span></li>
             <li class="reveal"><span class="contact-label">Social</span><span class="contact-value"><a href="${BIZ.instagram}" target="_blank" rel="noopener noreferrer">Instagram</a> · <a href="${BIZ.facebook}" target="_blank" rel="noopener noreferrer">Facebook</a> · <a href="${BIZ.google}" target="_blank" rel="noopener noreferrer">Google</a></span></li>
           </ul>
           <div class="contact-actions reveal">
-            <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary">Καλέστε μας</a>
-            <a href="mailto:${BIZ.email}" class="btn btn-ghost">Στείλτε Email</a>
+            <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary">Κάλεσέ με</a>
+            <a href="mailto:${BIZ.email}" class="btn btn-ghost contact-email-btn">Στείλε email</a>
           </div>
         </div>
         <div class="contact-map reveal">
           <iframe title="Χάρτης — ${attr(BIZ.street + ", " + BIZ.city)}" src="https://www.google.com/maps?q=${encodeURIComponent(BIZ.street + ", " + BIZ.city + " " + BIZ.postal)}&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-        </div>
-      </div>
-    </section>
-
-    <section class="booking" id="rantevou">
-      <div class="container">
-        <div class="section-head reveal">
-          <p class="eyebrow">Ραντεβού</p>
-          <h2 class="section-title">Πώς κλείνουμε ραντεβού</h2>
-          <p class="page-lead">Δεν υπάρχει online κράτηση. Το ραντεβού κλείνεται με μια σύντομη προσωπική επικοινωνία — τηλεφωνικά ή με email.</p>
-        </div>
-        <div class="booking-cards">
-          <div class="booking-card reveal">
-            <span class="booking-n">01</span>
-            <h3>Επικοινωνία</h3>
-            <p>Καλέστε στο <a href="tel:${BIZ.phoneIntl}">${esc(BIZ.phoneDisplay)}</a> ή στείλτε email στο <a href="mailto:${BIZ.email}">${esc(BIZ.email)}</a>.</p>
-          </div>
-          <div class="booking-card reveal">
-            <span class="booking-n">02</span>
-            <h3>Ημέρα &amp; ώρα</h3>
-            <p>Βρίσκουμε μαζί μια ώρα Δευτέρα έως Παρασκευή που σας εξυπηρετεί.</p>
-          </div>
-          <div class="booking-card reveal">
-            <span class="booking-n">03</span>
-            <h3>Διάρκεια</h3>
-            <p>Ατομική συνεδρία: 1 ώρα.<br />Συνεδρία ζευγαριού: 1,5 ώρα.</p>
-          </div>
-          <div class="booking-card reveal">
-            <span class="booking-n">04</span>
-            <h3>Η πρώτη συνάντηση</h3>
-            <p>Γνωριζόμαστε και συζητάμε τι σας φέρνει εδώ — χωρίς δεσμεύσεις και με απόλυτη εμπιστευτικότητα.</p>
-          </div>
-        </div>
-        <div class="faq faq--contact">
-          ${contactFaq.map(([q, a]) => `<details class="faq-item reveal"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("\n          ")}
         </div>
       </div>
     </section>
@@ -1100,7 +901,7 @@ function buildSitemap() {
   const urls = [
     { loc: "index.html", pr: "1.0", cf: "weekly" },
     { loc: "i-psychologos.html", pr: "0.8", cf: "monthly" },
-    { loc: "ypiresies/index.html", pr: "0.9", cf: "monthly" },
+    { loc: "o-choros.html", pr: "0.7", cf: "monthly" },
     ...SERVICES.map((s) => ({ loc: "ypiresies/" + s.slug + ".html", pr: "0.9", cf: "monthly" })),
     ...AREAS.map((a) => ({ loc: "perioches/" + a.slug + ".html", pr: "0.7", cf: "monthly" })),
     { loc: "blog/index.html", pr: "0.7", cf: "weekly" },
@@ -1131,7 +932,7 @@ const write = (p, html) => { out(p, html); n++; };
 write("index.html", pageHome());
 write("i-psychologos.html", pageAbout());
 write("epikoinonia.html", pageContact());
-write("ypiresies/index.html", pageServicesHub());
+write("o-choros.html", pageSpace());
 SERVICES.forEach((s, i) => write("ypiresies/" + s.slug + ".html", pageService(s, i)));
 AREAS.forEach((a) => write("perioches/" + a.slug + ".html", pageArea(a)));
 write("blog/index.html", pageBlogHub());

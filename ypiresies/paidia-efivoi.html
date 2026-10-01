@@ -31,9 +31,8 @@
   <link rel="stylesheet" href="../styles.css" />
   <script>(function(){var d=document.documentElement,seen=false;try{seen=sessionStorage.getItem("ysp-intro")==="1"}catch(e){}if(seen)return;d.className+=" intro";try{sessionStorage.setItem("ysp-intro","1")}catch(e){}})();</script>
   
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Αρχική","item":"https://www.yoursafeplace.gr/index.html"},{"@type":"ListItem","position":2,"name":"Υπηρεσίες","item":"https://www.yoursafeplace.gr/ypiresies/index.html"},{"@type":"ListItem","position":3,"name":"Παιδιά & Έφηβοι","item":"https://www.yoursafeplace.gr/ypiresies/paidia-efivoi.html"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Αρχική","item":"https://www.yoursafeplace.gr/index.html"},{"@type":"ListItem","position":2,"name":"Παιδιά & Έφηβοι","item":"https://www.yoursafeplace.gr/ypiresies/paidia-efivoi.html"}]}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalTherapy","name":"Υποστήριξη Παιδιών & Εφήβων","description":"Ψυχολογική υποστήριξη παιδιών και εφήβων στη Θεσσαλονίκη: άγχος, σχολείο, φιλίες, αυτοεκτίμηση, εφηβεία, αλλαγές στην οικογένεια. Συνεργασία με τους γονείς.","url":"https://www.yoursafeplace.gr/ypiresies/paidia-efivoi.html","provider":{"@id":"https://www.yoursafeplace.gr/#practice"}}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Από ποια ηλικία μπορεί ένα παιδί να έρθει;","acceptedAnswer":{"@type":"Answer","text":"Δουλεύουμε με παιδιά σχολικής ηλικίας και εφήβους. Για μικρότερα παιδιά, η δουλειά γίνεται κυρίως μέσω των γονέων."}},{"@type":"Question","name":"Πώς εξηγώ στο παιδί μου γιατί θα έρθουμε;","acceptedAnswer":{"@type":"Answer","text":"Με απλά και ειλικρινή λόγια: ότι υπάρχει κάποιος που βοηθά τα παιδιά όταν κάτι τα δυσκολεύει και ότι δεν πρόκειται για τιμωρία ή για κάτι «κακό»."}},{"@type":"Question","name":"Θα μου λέτε τι μου λέει το παιδί μου;","acceptedAnswer":{"@type":"Answer","text":"Το παιδί χρειάζεται τον δικό του χώρο. Ενημερώνεστε για την πορεία και για ό,τι είναι απαραίτητο για την ασφάλεια και την υποστήριξή του, χωρίς να παραβιάζεται η εμπιστοσύνη."}},{"@type":"Question","name":"Ο έφηβος μου αρνείται να έρθει. Τι κάνω;","acceptedAnswer":{"@type":"Answer","text":"Είναι συχνό. Σε αυτές τις περιπτώσεις ξεκινάμε με συμβουλευτική γονέων και βρίσκουμε τρόπους να ανοίξει ο δρόμος, χωρίς πίεση και επιβολή."}},{"@type":"Question","name":"Πόσο συχνά γίνονται οι συνεδρίες;","acceptedAnswer":{"@type":"Answer","text":"Συνήθως μία φορά την εβδομάδα, με περιοδικές συναντήσεις με τους γονείς."}},{"@type":"Question","name":"Θα υπάρξει επικοινωνία με το σχολείο;","acceptedAnswer":{"@type":"Answer","text":"Μόνο εφόσον κρίνεται χρήσιμο και πάντα με τη συγκατάθεση της οικογένειας."}},{"@type":"Question","name":"Το παιδί μου δεν μιλάει εύκολα. Θα «δουλέψει» η θεραπεία;","acceptedAnswer":{"@type":"Answer","text":"Η επικοινωνία δεν γίνεται μόνο με λόγια. Με τα παιδιά αξιοποιούμε δημιουργικούς και βιωματικούς τρόπους έκφρασης, με τον δικό τους ρυθμό."}}]}</script>
 </head>
 <body>
   <div class="intro-screen" id="intro" aria-hidden="true">
@@ -51,75 +50,64 @@
       <button class="nav-toggle" aria-label="Άνοιγμα μενού" aria-expanded="false"><span></span><span></span><span></span></button>
       <ul class="nav-links">
         <li><a href="../index.html">Αρχική</a></li>
-        <li><a href="../i-psychologos.html">Η Ψυχολόγος</a></li>
+        <li><a href="../i-psychologos.html">Λίγα λόγια για μένα</a></li>
         <li class="has-sub">
-          <a href="../ypiresies/index.html" aria-current="page">Υπηρεσίες</a>
-          <ul class="sub">
+          <button type="button" class="sub-toggle is-active" aria-expanded="false" aria-controls="sub-ypiresies">Υπηρεσίες</button>
+          <ul class="sub" id="sub-ypiresies">
             <li><a href="../ypiresies/atomiki-psychotherapeia.html">Ατομική Ψυχοθεραπεία</a></li>
             <li><a href="../ypiresies/therapeia-zevgarion.html">Θεραπεία Ζευγαριών</a></li>
             <li><a href="../ypiresies/symvouleftiki-goneon.html">Συμβουλευτική Γονέων</a></li>
             <li><a href="../ypiresies/paidia-efivoi.html">Παιδιά &amp; Έφηβοι</a></li>
           </ul>
         </li>
-        <li><a href="../blog/index.html">Blog</a></li>
+        <li><a href="../o-choros.html">Ο Χώρος</a></li>
         <li><a href="../epikoinonia.html">Επικοινωνία</a></li>
-        <li><a href="../epikoinonia.html#rantevou" class="btn btn-nav">Ραντεβού</a></li>
+        <li class="nav-cta"><a href="../epikoinonia.html" class="btn btn-primary btn-nav">Κλείσε ραντεβού</a></li>
       </ul>
     </nav>
-  </header><nav class="crumbs container" aria-label="Breadcrumb"><a href="../index.html">Αρχική</a><span class="sep">/</span> <a href="../ypiresies/index.html">Υπηρεσίες</a><span class="sep">/</span> <span aria-current="page">Παιδιά &amp; Έφηβοι</span></nav>
+  </header><nav class="crumbs container" aria-label="Breadcrumb"><a href="../index.html">Αρχική</a><span class="sep">/</span> <span aria-current="page">Παιδιά &amp; Έφηβοι</span></nav>
   <main id="main">
     <section class="page-hero page-hero--svc">
       <div class="container">
         <span class="svc-hero-icon reveal" aria-hidden="true"><svg class="ico" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 39V19"/>
      <path d="M22 23c-8.5 0-13-5-13-13 8.5 0 13 5 13 13Z"/>
      <path d="M22 27c8 0 12-4.6 12-12-8 0-12 4.6-12 12Z"/></svg></span>
-        <p class="eyebrow reveal">Υπηρεσία 04</p>
         <h1 class="page-title reveal">Υποστήριξη Παιδιών &amp; Εφήβων</h1>
         <p class="page-lead reveal">Ένας χώρος όπου το παιδί ή ο έφηβος μπορεί να μιλήσει ελεύθερα — και να ακουστεί, χωρίς να κριθεί.</p>
-        <div class="hero-actions reveal"><a href="../epikoinonia.html#rantevou" class="btn btn-primary">Κλείστε Ραντεβού</a></div>
       </div>
     </section>
 
     <section class="svc-detail">
       <div class="container svc-detail-grid">
         <article class="svc-body">
-          <p class="reveal">Τα παιδιά και οι έφηβοι δεν εκφράζουν πάντα με λόγια αυτό που τους δυσκολεύει. Συχνά μιλούν μέσα από τη συμπεριφορά τους: την ένταση, τη σιωπή, τη σωματική δυσφορία, την άρνηση για το σχολείο.</p>
-          <p class="reveal">Με υπόβαθρο στη <strong>Σχολική και Εξελικτική Ψυχολογία</strong>, η δουλειά προσαρμόζεται στην ηλικία και στο αναπτυξιακό στάδιο. Με τα μικρότερα παιδιά αξιοποιούνται πιο βιωματικοί και δημιουργικοί τρόποι έκφρασης· με τους εφήβους, η κουβέντα ξεκινά από τον δικό τους ρυθμό και τα δικά τους θέματα.</p>
-          <p class="reveal">Η συνεργασία με τους γονείς είναι αναπόσπαστο μέρος της διαδικασίας. Παράλληλα, όμως, το παιδί ή ο έφηβος χρειάζεται να ξέρει ότι έχει έναν δικό του χώρο — γι' αυτό το πλαίσιο εμπιστευτικότητας συμφωνείται εξαρχής με όλους.</p>
-          <p class="reveal">Όταν χρειάζεται και με τη συγκατάθεση της οικογένειας, μπορεί να υπάρξει επικοινωνία με το σχολείο ή με άλλους επαγγελματίες που εμπλέκονται.</p>
+          <p class="reveal">Τα παιδιά και οι έφηβοι δεν εκφράζουν πάντα με λόγια αυτό που τους δυσκολεύει. Μπορεί να το δείχνουν μέσα από τη συμπεριφορά τους, την ένταση, τη σιωπή, αλλαγές στη διάθεσή τους ή δυσκολίες στην καθημερινότητά τους.</p>
+          <p class="reveal">Με βάση την εκπαίδευσή μου στη Σχολική και Εξελικτική Ψυχολογία, η προσέγγιση μου προσαρμόζεται στην ηλικία, τις ανάγκες και τον τρόπο έκφρασης κάθε παιδιού. Με τα μικρότερα παιδιά αξιοποιούμε πιο βιωματικούς και δημιουργικούς τρόπους επικοινωνίας, ενώ με τους εφήβους ξεκινάμε από όσα έχουν σημασία για τους ίδιους, στον δικό τους ρυθμό.</p>
+          <p class="reveal">Η συνεργασία με τους γονείς αποτελεί σημαντικό μέρος της διαδικασίας. Παράλληλα, το παιδί ή ο έφηβος χρειάζεται έναν δικό του χώρο, όπου μπορεί να μιλήσει με ασφάλεια και εμπιστοσύνη. Γι' αυτό το πλαίσιο εμπιστευτικότητας συζητιέται και συμφωνείται εξαρχής με όλους.</p>
+          <p class="reveal">Όταν χρειάζεται και με τη συγκατάθεση των γονέων, μπορεί να υπάρξει επικοινωνία με το σχολείο ή με άλλους επαγγελματίες που συμμετέχουν στη φροντίδα του παιδιού.</p>
 
           <h2 class="reveal">Σε ποιες περιπτώσεις βοηθά</h2>
           <ul class="ticks">
-            <li class="reveal">Άγχος, φόβοι και σωματικά συμπτώματα χωρίς οργανική αιτία</li>
-            <li class="reveal">Σχολικό άγχος, άρνηση σχολείου, δυσκολίες συγκέντρωσης</li>
-            <li class="reveal">Δυσκολίες στις φιλίες, εκφοβισμός (bullying)</li>
-            <li class="reveal">Χαμηλή αυτοεκτίμηση και αυτοκριτική</li>
-            <li class="reveal">Ξεσπάσματα θυμού και δυσκολία στη ρύθμιση συναισθημάτων</li>
+            <li class="reveal">Άγχος, φόβοι και συναισθηματικές δυσκολίες</li>
+            <li class="reveal">Σχολικό άγχος, άρνηση σχολείου και δυσκολία στη συγκέντρωση</li>
+            <li class="reveal">Δυσκολίες στις φιλίες και στις σχέσεις με τους συνομηλίκους, εκφοβισμός (bullying)</li>
+            <li class="reveal">Χαμηλή αυτοεκτίμηση και έντονη αυτοκριτική</li>
+            <li class="reveal">Ξεσπάσματα θυμού και έντονες συναισθηματικές αντιδράσεις</li>
             <li class="reveal">Αλλαγές στην οικογένεια: διαζύγιο, μετακόμιση, νέο αδελφάκι, απώλεια</li>
-            <li class="reveal">Εφηβεία: ταυτότητα, αυτονομία, σχέση με το σώμα</li>
-            <li class="reveal">Υπερβολική ενασχόληση με οθόνες και κοινωνικά δίκτυα</li>
+            <li class="reveal">Θέματα εφηβείας: ταυτότητα, αυτονομία και σχέση με το σώμα</li>
+            <li class="reveal">Έντονη ενασχόληση με οθόνες και κοινωνικά δίκτυα</li>
           </ul>
 
-          <h2 class="reveal">Συχνές ερωτήσεις</h2>
-          <div class="faq">
-            <details class="faq-item reveal"><summary>Από ποια ηλικία μπορεί ένα παιδί να έρθει;</summary><p>Δουλεύουμε με παιδιά σχολικής ηλικίας και εφήβους. Για μικρότερα παιδιά, η δουλειά γίνεται κυρίως μέσω των γονέων.</p></details>
-            <details class="faq-item reveal"><summary>Πώς εξηγώ στο παιδί μου γιατί θα έρθουμε;</summary><p>Με απλά και ειλικρινή λόγια: ότι υπάρχει κάποιος που βοηθά τα παιδιά όταν κάτι τα δυσκολεύει και ότι δεν πρόκειται για τιμωρία ή για κάτι «κακό».</p></details>
-            <details class="faq-item reveal"><summary>Θα μου λέτε τι μου λέει το παιδί μου;</summary><p>Το παιδί χρειάζεται τον δικό του χώρο. Ενημερώνεστε για την πορεία και για ό,τι είναι απαραίτητο για την ασφάλεια και την υποστήριξή του, χωρίς να παραβιάζεται η εμπιστοσύνη.</p></details>
-            <details class="faq-item reveal"><summary>Ο έφηβος μου αρνείται να έρθει. Τι κάνω;</summary><p>Είναι συχνό. Σε αυτές τις περιπτώσεις ξεκινάμε με συμβουλευτική γονέων και βρίσκουμε τρόπους να ανοίξει ο δρόμος, χωρίς πίεση και επιβολή.</p></details>
-            <details class="faq-item reveal"><summary>Πόσο συχνά γίνονται οι συνεδρίες;</summary><p>Συνήθως μία φορά την εβδομάδα, με περιοδικές συναντήσεις με τους γονείς.</p></details>
-            <details class="faq-item reveal"><summary>Θα υπάρξει επικοινωνία με το σχολείο;</summary><p>Μόνο εφόσον κρίνεται χρήσιμο και πάντα με τη συγκατάθεση της οικογένειας.</p></details>
-            <details class="faq-item reveal"><summary>Το παιδί μου δεν μιλάει εύκολα. Θα «δουλέψει» η θεραπεία;</summary><p>Η επικοινωνία δεν γίνεται μόνο με λόγια. Με τα παιδιά αξιοποιούμε δημιουργικούς και βιωματικούς τρόπους έκφρασης, με τον δικό τους ρυθμό.</p></details>
+          <div class="svc-closing reveal">
+            <p>Όταν ένα παιδί ή ένας έφηβος δυσκολεύεται, μπορούμε να δημιουργήσουμε μαζί έναν χώρο όπου θα έχει την ευκαιρία να εκφράσει όσα το απασχολούν και να κατανοήσει καλύτερα όσα βιώνει. Αναγνωρίζοντας τις δυνατότητές του και ενισχύοντας την αυτοπεποίθησή του, μπορεί να αναζητήσει νέους τρόπους να αντιμετωπίζει τις δυσκολίες του με περισσότερη σιγουριά.</p>
           </div>
         </article>
 
         <aside class="svc-aside">
           <div class="aside-card reveal">
-            <h3>Κλείστε ραντεβού</h3>
-            <p>Οι συνεδρίες πραγματοποιούνται κατόπιν ραντεβού, Δευτέρα έως Παρασκευή. Επικοινωνήστε τηλεφωνικά ή με email.</p>
-            <a href="tel:+306972360335" class="btn btn-primary btn-block">697 236 0335</a>
-            <a href="mailto:l.lefkou@yahoo.gr" class="btn btn-ghost btn-block">l.lefkou@yahoo.gr</a>
-            <p class="aside-meta">Εγνατίας 54<br />Θεσσαλονίκη, 54624</p>
-            <p class="aside-meta">Διάρκεια συνεδρίας: 1 ώρα</p>
+            <h3>Κλείσε ραντεβού</h3>
+            <p>Οι συνεδρίες πραγματοποιούνται κατόπιν ραντεβού, Δευτέρα έως Παρασκευή, στο χώρο μου (Εγνατίας 54, Θεσσαλονίκη) ή online.</p>
+            <a href="tel:+306972360335" class="btn btn-primary btn-block btn-phone">697 236 0335</a>
+            <a href="mailto:l.lefkou@yahoo.gr" class="btn btn-ghost btn-block btn-email">l.lefkou@yahoo.gr</a>
           </div>
           <div class="aside-card reveal">
             <h3>Άλλες υπηρεσίες</h3>
@@ -133,25 +121,11 @@
       </div>
     </section>
   </main>
-  <section class="cta-band">
-    <div class="container cta-inner">
-      <div>
-        <p class="eyebrow">Κλείστε ραντεβού</p>
-        <h2 class="cta-title">Το πρώτο βήμα είναι πάντα το πιο δύσκολο.</h2>
-        <p class="cta-sub">Οι συνεδρίες πραγματοποιούνται κατόπιν ραντεβού, Δευτέρα έως Παρασκευή. Επικοινωνήστε μαζί μου για να βρούμε μαζί μια ώρα που σας εξυπηρετεί.</p>
-      </div>
-      <div class="cta-actions">
-        <a href="tel:+306972360335" class="btn btn-primary">Καλέστε 697 236 0335</a>
-        <a href="mailto:l.lefkou@yahoo.gr" class="btn btn-ghost">Στείλτε Email</a>
-        <a href="../epikoinonia.html#rantevou" class="btn btn-ghost">Επικοινωνία &amp; Ραντεβού</a>
-      </div>
-    </div>
-  </section>
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-brand">
         <img src="../assets/logo.png" alt="YOUR SAFE PLACE" class="footer-logo" width="192" height="120" />
-        <p class="footer-tag">Ένας χώρος για να σταθείς. Να μιλήσεις. Να καταλάβεις. Να συνδεθείς.</p>
+        <p class="footer-tag">Ένας χώρος για να σταθείς, να μιλήσεις, να καταλάβεις, να συνδεθείς.</p>
         <p class="footer-addr">
           Εγνατίας 54<br />
           Θεσσαλονίκη, Τ.Κ. 54624
@@ -177,9 +151,9 @@
         <h3>Εξερεύνηση</h3>
         <nav aria-label="Πλοήγηση" class="footer-links">
           <a href="../index.html">Αρχική</a>
-          <a href="../i-psychologos.html">Η Ψυχολόγος</a>
-          <a href="../ypiresies/index.html">Όλες οι Υπηρεσίες</a>
-          <a href="../blog/index.html">Blog</a>
+          <a href="../i-psychologos.html">Λίγα λόγια για μένα</a>
+          <a href="../o-choros.html">Ο Χώρος</a>
+          <a href="../blog/index.html">Άρθρα</a>
           <a href="../epikoinonia.html">Επικοινωνία</a>
         </nav>
       </div>
@@ -199,9 +173,6 @@
       <p class="cb-credit">Made by <a href="https://clinicbrain.gr/?utm_source=client-site&amp;utm_medium=footer&amp;utm_campaign=made-by" target="_blank" rel="noopener noreferrer">CLINICBRAIN</a></p>
     </div>
 
-    <p class="footer-areas">
-      Εξυπηρετώ: <a href="../perioches/psychologos-kentro-thessalonikis.html">Κέντρο Θεσσαλονίκης</a> <span aria-hidden="true">·</span> <a href="../perioches/psychologos-thessaloniki.html">Θεσσαλονίκη</a> <span aria-hidden="true">·</span> <a href="../perioches/psychologos-kalamaria.html">Καλαμαριά</a> <span aria-hidden="true">·</span> <a href="../perioches/psychologos-toumba.html">Τούμπα</a> <span aria-hidden="true">·</span> <a href="../perioches/psychologos-ano-poli.html">Άνω Πόλη</a> <span aria-hidden="true">·</span> <a href="../perioches/psychologos-pylaia-panorama.html">Πυλαία &amp; Πανόραμα</a> <span aria-hidden="true">·</span> <a href="../perioches/psychologos-neapoli-stavroupoli.html">Νεάπολη &amp; Σταυρούπολη</a>
-    </p>
   </footer>
   <script src="../main.js" defer></script>
 </body>

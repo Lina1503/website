@@ -71,6 +71,94 @@
     else if (mq.addListener) mq.addListener(onWide);
   }
 
+  // Dropdown «Υπηρεσίες» — άνοιγμα με κλικ/άγγιγμα (στο desktop και με hover)
+  var subToggle = document.querySelector(".sub-toggle");
+  if (subToggle) {
+    var subItem = subToggle.parentNode;
+    var setSub = function (open) {
+      subItem.classList.toggle("open", open);
+      subToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    subToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      setSub(!subItem.classList.contains("open"));
+    });
+    document.addEventListener("click", function (e) {
+      if (!subItem.contains(e.target)) setSub(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") setSub(false);
+    });
+  }
+
+  // Lightbox — οι φωτογραφίες του χώρου ανοίγουν σε μεγέθυνση
+  var shots = Array.prototype.slice.call(document.querySelectorAll("[data-lightbox]"));
+  if (shots.length) {
+    var lb = document.createElement("div");
+    lb.className = "lightbox";
+    lb.setAttribute("role", "dialog");
+    lb.setAttribute("aria-modal", "true");
+    lb.setAttribute("aria-label", "Φωτογραφίες του χώρου");
+    lb.innerHTML =
+      '<img alt="" />' +
+      '<button type="button" class="lb-btn lb-close" aria-label="Κλείσιμο">&times;</button>' +
+      '<button type="button" class="lb-btn lb-prev" aria-label="Προηγούμενη">&lsaquo;</button>' +
+      '<button type="button" class="lb-btn lb-next" aria-label="Επόμενη">&rsaquo;</button>' +
+      '<p class="lb-count"></p>';
+    document.body.appendChild(lb);
+    var lbImg = lb.querySelector("img");
+    var lbCount = lb.querySelector(".lb-count");
+    var current = 0;
+    var opener = null;
+
+    var show = function (i) {
+      current = (i + shots.length) % shots.length;
+      var img = shots[current].querySelector("img");
+      lbImg.src = shots[current].getAttribute("href");
+      lbImg.alt = img ? img.alt : "";
+      lbCount.textContent = current + 1 + " / " + shots.length;
+    };
+    var openLb = function (i) {
+      opener = document.activeElement;
+      show(i);
+      lb.classList.add("is-open");
+      document.body.classList.add("lb-lock");
+      lb.querySelector(".lb-close").focus();
+    };
+    var closeLb = function () {
+      lb.classList.remove("is-open");
+      document.body.classList.remove("lb-lock");
+      if (opener) opener.focus();
+    };
+
+    shots.forEach(function (a, i) {
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        openLb(i);
+      });
+    });
+    lb.querySelector(".lb-close").addEventListener("click", closeLb);
+    lb.querySelector(".lb-prev").addEventListener("click", function () { show(current - 1); });
+    lb.querySelector(".lb-next").addEventListener("click", function () { show(current + 1); });
+    // κλικ στο σκοτεινό φόντο κλείνει
+    lb.addEventListener("click", function (e) { if (e.target === lb) closeLb(); });
+    document.addEventListener("keydown", function (e) {
+      if (!lb.classList.contains("is-open")) return;
+      if (e.key === "Escape") closeLb();
+      else if (e.key === "ArrowLeft") show(current - 1);
+      else if (e.key === "ArrowRight") show(current + 1);
+    });
+    // swipe στο κινητό
+    var x0 = null;
+    lb.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener("touchend", function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) show(current + (dx < 0 ? 1 : -1));
+      x0 = null;
+    });
+  }
+
   // Sticky header shadow
   var header = document.querySelector(".site-header");
   if (header) {
