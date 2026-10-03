@@ -34,12 +34,12 @@
   var links = document.querySelector(".nav-links");
   if (toggle && links) {
     var setNav = function (open) {
-      document.body.classList.toggle("nav-open", open);
+      document.documentElement.classList.toggle("nav-open", open);
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
       toggle.setAttribute("aria-label", open ? "Κλείσιμο μενού" : "Άνοιγμα μενού");
       if (open) links.scrollTop = 0;
     };
-    var isOpen = function () { return document.body.classList.contains("nav-open"); };
+    var isOpen = function () { return document.documentElement.classList.contains("nav-open"); };
 
     toggle.addEventListener("click", function (e) {
       e.stopPropagation();

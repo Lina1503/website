@@ -1214,9 +1214,11 @@ a.contact-value:hover { color: var(--clay-deep); }
     background: var(--cream);
     border-top: 1px solid var(--line);
     padding: 1rem var(--gutter) 2.2rem;
-    max-height: calc(100vh - 80px);
-    max-height: calc(100dvh - 80px);
+    /* πλήρες ύψος: με ανοιχτό μενού δεν φαίνεται η σελίδα από πίσω */
+    height: calc(100vh - 80px);
+    height: calc(100dvh - 80px);
     overflow-y: auto;
+    overscroll-behavior: contain;
     transform: translateY(-12px);
     opacity: 0;
     visibility: hidden;
@@ -1224,7 +1226,7 @@ a.contact-value:hover { color: var(--clay-deep); }
     transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), visibility 0.3s;
   }
   .nav-open .nav-links { opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
-  .nav-open { overflow: hidden; }
+  html.nav-open { overflow: hidden; } /* κλείδωμα κύλισης της σελίδας */
   .nav-links > li > a:not(.btn),
   .sub-toggle {
     display: block;
