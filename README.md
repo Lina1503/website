@@ -92,4 +92,4 @@ node build/build.mjs
    εταιρικό (π.χ. `info@yoursafeplace.gr`), αλλάξτε το στο `data.mjs`.
 4. Μετά το live: υποβολή `sitemap.xml` στο Google Search Console.
 
-Made by CLINICBRAIN — https://clinicbrain.gr/
+Made by Astra — https://astramarketing.gr/
